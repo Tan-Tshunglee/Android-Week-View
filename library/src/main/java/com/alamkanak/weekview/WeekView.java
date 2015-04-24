@@ -229,7 +229,6 @@ public class WeekView extends View {
 
         // Hold references.
         mContext = context;
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         // Get the attribute values (if any).
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeekView, 0, 0);
         try {
@@ -247,7 +246,7 @@ public class WeekView extends View {
             mTodayBackgroundColor = a.getColor(R.styleable.WeekView_todayBackgroundColor, mTodayBackgroundColor);
             mHourSeparatorHeight = a.getDimensionPixelSize(R.styleable.WeekView_hourSeparatorHeight, mHourSeparatorHeight);
             mTodayHeaderTextColor = a.getColor(R.styleable.WeekView_todayHeaderTextColor, mTodayHeaderTextColor);
-            mEventTextSize = a.getDimensionPixelSize(R.styleable.WeekView_eventTextSize, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mEventTextSize, context.getResources().getDisplayMetrics()));
+            mEventTextSize = a.getDimensionPixelSize(R.styleable.WeekView_eventTextSize, dipToPx(mEventTextSize));
             mEventTextColor = a.getColor(R.styleable.WeekView_eventTextColor, mEventTextColor);
             mEventPadding = a.getDimensionPixelSize(R.styleable.WeekView_hourSeparatorHeight, mEventPadding);
             mHeaderColumnBackgroundColor = a.getColor(R.styleable.WeekView_headerColumnBackground, mHeaderColumnBackgroundColor);

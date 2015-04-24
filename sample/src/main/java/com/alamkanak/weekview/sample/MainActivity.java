@@ -11,9 +11,11 @@ import android.widget.Toast;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 
 /**
@@ -21,7 +23,7 @@ import java.util.List;
  * Website: http://april-shower.com
  */
 public class MainActivity extends Activity implements WeekView.MonthChangeListener,
-        WeekView.EventClickListener, WeekView.EventLongPressListener {
+        WeekView.EventClickListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener {
 
     private static final int TYPE_DAY_VIEW = 1;
     private static final int TYPE_THREE_DAY_VIEW = 2;
@@ -46,6 +48,8 @@ public class MainActivity extends Activity implements WeekView.MonthChangeListen
 
         // Set long press listener for events.
         mWeekView.setEventLongPressListener(this);
+
+        mWeekView.setEmptyViewLongPressListener(this);
     }
 
 
@@ -224,5 +228,11 @@ public class MainActivity extends Activity implements WeekView.MonthChangeListen
     @Override
     public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
         Toast.makeText(MainActivity.this, "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onEmptyViewLongPress(Calendar time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("");
+        Toast.makeText(this, "Long pressed at idle time " + time.getTime(), Toast.LENGTH_SHORT).show();
     }
 }
