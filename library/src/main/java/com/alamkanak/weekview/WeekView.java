@@ -73,6 +73,7 @@ public class WeekView extends View {
     private float mDistanceX = 0;
     private Direction mCurrentFlingDirection = Direction.NONE;
 
+
     // Attributes and their default values.
     private int mHourHeight = 50;
     private int mColumnGap = 10;
@@ -275,12 +276,13 @@ public class WeekView extends View {
 
         // Measure settings for time column.
         mTimeTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTimeTextPaint.setTextAlign(Paint.Align.RIGHT);
+        mTimeTextPaint.setTextAlign(Paint.Align.LEFT);
         mTimeTextPaint.setTextSize(mTextSize);
         mTimeTextPaint.setColor(mHeaderColumnTextColor);
         Rect rect = new Rect();
-        mTimeTextPaint.getTextBounds("00 PM", 0, "00 PM".length(), rect);
-        mTimeTextWidth = mTimeTextPaint.measureText("00 PM");
+        String maxLengTimeSample = mContext.getString(R.string.time_format, mContext.getString(R.string.am), 11);
+        mTimeTextPaint.getTextBounds(maxLengTimeSample, 0, maxLengTimeSample.length(), rect);
+        mTimeTextWidth = mTimeTextPaint.measureText(maxLengTimeSample);
         mTimeTextHeight = rect.height();
         mHeaderMarginBottom = mTimeTextHeight / 2;
 
@@ -289,7 +291,7 @@ public class WeekView extends View {
         mHeaderTextPaint.setColor(mHeaderColumnTextColor);
         mHeaderTextPaint.setTextAlign(Paint.Align.CENTER);
         mHeaderTextPaint.setTextSize(mTextSize);
-        mHeaderTextPaint.getTextBounds("00 PM", 0, "00 PM".length(), rect);
+        mHeaderTextPaint.getTextBounds(maxLengTimeSample, 0, maxLengTimeSample.length(), rect);
         mHeaderTextHeight = rect.height();
         mHeaderTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
@@ -372,15 +374,15 @@ public class WeekView extends View {
             String time = getDateTimeInterpreter().interpretTime(i);
             if (time == null)
                 throw new IllegalStateException("A DateTimeInterpreter must not return null time");
-            if (top < getHeight()) canvas.drawText(time, mTimeTextWidth + mHeaderColumnPadding, top + mTimeTextHeight, mTimeTextPaint);
+            if (top < getHeight()) canvas.drawText(time, mHeaderColumnPadding, top + mTimeTextHeight, mTimeTextPaint);
         }
     }
 
     private void drawHeaderRowAndEvents(Canvas canvas) {
         // Calculate the available width for each day.
-        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding *2;
+        mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 2;
         mWidthPerDay = getWidth() - mHeaderColumnWidth - mColumnGap * (mNumberOfVisibleDays - 1);
-        mWidthPerDay = mWidthPerDay/mNumberOfVisibleDays;
+        mWidthPerDay = mWidthPerDay / mNumberOfVisibleDays;
 
         if (mAreDimensionsInvalid) {
             mAreDimensionsInvalid = false;
@@ -495,6 +497,7 @@ public class WeekView extends View {
 
             // Draw the day labels.
             String dayLabel = getDateTimeInterpreter().interpretDate(day);
+
             if (dayLabel == null)
                 throw new IllegalStateException("A DateTimeInterpreter must not return null date");
             canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, sameDay ? mTodayHeaderTextPaint : mHeaderTextPaint);
@@ -995,10 +998,18 @@ public class WeekView extends View {
                 @Override
                 public String interpretDate(Calendar date) {
                     SimpleDateFormat sdf;
-                    sdf = mDayNameLength == LENGTH_SHORT ? new SimpleDateFormat("EEEEE") : new SimpleDateFormat("EEE");
+                    sdf = mNumberOfVisibleDays > 3 ? new SimpleDateFormat("EEEEE") : new SimpleDateFormat("EEE");
                     try{
                         String dayName = sdf.format(date.getTime()).toUpperCase();
-                        return String.format("%s %d/%02d", dayName, date.get(Calendar.MONTH) + 1, date.get(Calendar.DAY_OF_MONTH));
+
+
+                        return String.format(
+                                mContext.getString(R.string.week_view_header_day_format),
+                                dayName,
+                                date.get(Calendar.MONTH) + 1,
+                                date.get(Calendar.DAY_OF_MONTH)
+                        );
+
                     }catch (Exception e){
                         e.printStackTrace();
                         return "";
@@ -1007,12 +1018,22 @@ public class WeekView extends View {
 
                 @Override
                 public String interpretTime(int hour) {
-                    String amPm;
-                    if (hour >= 0 && hour < 12) amPm = "AM";
-                    else amPm = "PM";
-                    if (hour == 0) hour = 12;
-                    if (hour > 12) hour -= 12;
-                    return String.format("%02d %s", hour, amPm);
+                    String hourPrefix;
+                    if (hour >= 0 && hour < 5) {
+                        hourPrefix = mContext.getString(R.string.morning);
+                    } else if( hour < 11) {
+                        hourPrefix = mContext.getString(R.string.am);
+                    } else if(hour < 14) {
+                        hourPrefix = mContext.getString(R.string.noon);
+                    } else if(hour < 18) {
+                        hourPrefix = mContext.getString(R.string.pm);
+                    } else {
+                        hourPrefix = mContext.getString(R.string.night);
+                    }
+                    if (hour > 12) {
+                        hour -= 12;
+                    }
+                    return getContext().getString(R.string.time_format, hour, hourPrefix);
                 }
             };
         }
@@ -1500,7 +1521,8 @@ public class WeekView extends View {
      * @return Whether the times are on the same day.
      */
     private boolean isSameDay(Calendar dayOne, Calendar dayTwo) {
-        return dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR) && dayOne.get(Calendar.DAY_OF_YEAR) == dayTwo.get(Calendar.DAY_OF_YEAR);
+        return dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR)
+                && dayOne.get(Calendar.DAY_OF_YEAR) == dayTwo.get(Calendar.DAY_OF_YEAR);
     }
 
 }

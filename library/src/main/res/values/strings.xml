@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Hour Am first params is hour second is am or pm -->
+    <string name="time_format">%2$s%1$s点</string>
+    <string name="morning">凌晨</string>
+    <string name="am">上午</string>
+    <string name="noon">中午</string>
+    <string name="pm">下午</string>
+    <string name="night">晚上</string>
+    <string name="week_view_header_day_format">%1$s %2$d/%3$02d</string>
+</resources>
