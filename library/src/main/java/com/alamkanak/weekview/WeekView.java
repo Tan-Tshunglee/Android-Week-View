@@ -16,6 +16,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -83,7 +84,7 @@ public class WeekView extends View {
     private int mHeaderColumnTextColor = Color.BLACK;
     private int mNumberOfVisibleDays = 3;
     private int mHeaderRowPadding = 10;
-    private int mHeaderRowBackgroundColor = Color.WHITE;
+    private int mHeaderRowBackgroundColor = Color.parseColor("#ffefefef");
     private int mDayBackgroundColor = Color.rgb(245, 245, 245);
     private int mHourSeparatorColor = Color.rgb(230, 230, 230);
     private int mTodayBackgroundColor = Color.rgb(239, 247, 254);
@@ -96,7 +97,6 @@ public class WeekView extends View {
     private int mDefaultEventColor;
     private boolean mIsFirstDraw = true;
     private boolean mAreDimensionsInvalid = true;
-    @Deprecated private int mDayNameLength = LENGTH_LONG;
     private int mOverlappingEventGap = 0;
     private int mEventMarginVertical = 0;
     private float mXScrollingSpeed = 1f;
@@ -229,18 +229,18 @@ public class WeekView extends View {
 
         // Hold references.
         mContext = context;
-
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         // Get the attribute values (if any).
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.WeekView, 0, 0);
         try {
             mFirstDayOfWeek = a.getInteger(R.styleable.WeekView_firstDayOfWeek, mFirstDayOfWeek);
-            mHourHeight = a.getDimensionPixelSize(R.styleable.WeekView_hourHeight, mHourHeight);
-            mTextSize = a.getDimensionPixelSize(R.styleable.WeekView_textSize, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mTextSize, context.getResources().getDisplayMetrics()));
-            mHeaderColumnPadding = a.getDimensionPixelSize(R.styleable.WeekView_headerColumnPadding, mHeaderColumnPadding);
-            mColumnGap = a.getDimensionPixelSize(R.styleable.WeekView_columnGap, mColumnGap);
+            mHourHeight = a.getDimensionPixelSize(R.styleable.WeekView_hourHeight, dipToPx(60));
+            mTextSize = a.getDimensionPixelSize(R.styleable.WeekView_textSize, dipToPx(mTextSize));
+            mHeaderColumnPadding = a.getDimensionPixelSize(R.styleable.WeekView_headerColumnPadding, dipToPx(10));
+            mColumnGap = a.getDimensionPixelSize(R.styleable.WeekView_columnGap, dipToPx(10));
             mHeaderColumnTextColor = a.getColor(R.styleable.WeekView_headerColumnTextColor, mHeaderColumnTextColor);
             mNumberOfVisibleDays = a.getInteger(R.styleable.WeekView_noOfVisibleDays, mNumberOfVisibleDays);
-            mHeaderRowPadding = a.getDimensionPixelSize(R.styleable.WeekView_headerRowPadding, mHeaderRowPadding);
+            mHeaderRowPadding = a.getDimensionPixelSize(R.styleable.WeekView_headerRowPadding, dipToPx(10));
             mHeaderRowBackgroundColor = a.getColor(R.styleable.WeekView_headerRowBackgroundColor, mHeaderRowBackgroundColor);
             mDayBackgroundColor = a.getColor(R.styleable.WeekView_dayBackgroundColor, mDayBackgroundColor);
             mHourSeparatorColor = a.getColor(R.styleable.WeekView_hourSeparatorColor, mHourSeparatorColor);
@@ -251,7 +251,6 @@ public class WeekView extends View {
             mEventTextColor = a.getColor(R.styleable.WeekView_eventTextColor, mEventTextColor);
             mEventPadding = a.getDimensionPixelSize(R.styleable.WeekView_hourSeparatorHeight, mEventPadding);
             mHeaderColumnBackgroundColor = a.getColor(R.styleable.WeekView_headerColumnBackground, mHeaderColumnBackgroundColor);
-            mDayNameLength = a.getInteger(R.styleable.WeekView_dayNameLength, mDayNameLength);
             mOverlappingEventGap = a.getDimensionPixelSize(R.styleable.WeekView_overlappingEventGap, mOverlappingEventGap);
             mEventMarginVertical = a.getDimensionPixelSize(R.styleable.WeekView_eventMarginVertical, mEventMarginVertical);
             mXScrollingSpeed = a.getFloat(R.styleable.WeekView_xScrollingSpeed, mXScrollingSpeed);
@@ -260,6 +259,10 @@ public class WeekView extends View {
         }
 
         init();
+    }
+
+    private int dipToPx(int dip) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, getResources().getDisplayMetrics());
     }
 
     private void init() {
@@ -1246,32 +1249,6 @@ public class WeekView extends View {
         invalidate();
     }
 
-    /**
-     * <b>Note:</b> Use {@link #setDateTimeInterpreter(DateTimeInterpreter)} and
-     * {@link #getDateTimeInterpreter()} instead.
-     * @return Either long or short day name is being used.
-     */
-    @Deprecated
-    public int getDayNameLength() {
-        return mDayNameLength;
-    }
-
-    /**
-     * Set the length of the day name displayed in the header row. Example of short day names is
-     * 'M' for 'Monday' and example of long day names is 'Mon' for 'Monday'.
-     * <p>
-     *     <b>Note:</b> Use {@link #setDateTimeInterpreter(DateTimeInterpreter)} instead.
-     * </p>
-     * @param length Supported values are {@link com.alamkanak.weekview.WeekView#LENGTH_SHORT} and
-     * {@link com.alamkanak.weekview.WeekView#LENGTH_LONG}.
-     */
-    @Deprecated
-    public void setDayNameLength(int length) {
-        if (length != LENGTH_LONG && length != LENGTH_SHORT) {
-            throw new IllegalArgumentException("length parameter must be either LENGTH_LONG or LENGTH_SHORT");
-        }
-        this.mDayNameLength = length;
-    }
 
     public int getOverlappingEventGap() {
         return mOverlappingEventGap;
